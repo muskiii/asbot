@@ -1,6 +1,6 @@
 const commando = require('discord.js-commando');
 const YTDL = require('ytdl-core');
-const https = require('https');
+const http = require('http');
 
 const TOKEN = "NDg5ODU2NDc4OTc5NTU1MzI5.DnxBwg.4VJt_GYuzXcMc1zngU7imsQ8aWQ";
 const PREFIX = ">";
@@ -30,26 +30,33 @@ bot.on('message',(message)=>{
         args.push(survivCode);
     }
 
+
     switch(args[0].toLowerCase()){
+        case "surviv-est":
+        if(!args[1]){
+            message.channel.send("Ingresar usuario");
+            break;
+        }
+        return getSurvivEst(args[1],message);
+        
         case "surviv":
             if(!args[1]){
                 if(currentSurviv != ""){
                     message.channel.send(survivURL+currentSurviv);
-                    return;
+                    break;
                 }
                 message.channel.send("No game in progress")
-                return;
+                break;
             }else{
                 if (args[1].length <= 6){
                     currentSurviv = args[1];
                     message.channel.send(args[1] + " Saved");
-                    return;
+                    break;
                 }else{
                     message.channel.send("Codigo sospechoso");
-                    return;
+                    break;
                 }
-            }
-        break;
+            }        
         case "bye":
         message.channel.send("live long and prosper");
         break;
@@ -57,12 +64,12 @@ bot.on('message',(message)=>{
         case "play":
         if(!args[1]){
             message.channel.send("link missing");
-            return;
+            break;
         }
 
         if(!message.member.voiceChannel){
             message.channel.send("you must be in voice channel K-po");
-            return;
+            break;
         }
 
         if(!servers[message.guild.id]){            
@@ -96,22 +103,22 @@ bot.on('message',(message)=>{
 
 });
 
-function getForecast(){
+// function getForecast(){
     
 
-https.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', (resp) => {
-  let data = '';
+// https.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', (resp) => {
+//   let data = '';
 
-});
-}
+// });
+// }
 
-function getNasasStuff(){
-    request('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', { json: true }, (err, res, body) => {
-    if (err) { return console.log(err); }
-    console.log(body.url);
-    console.log(body.explanation);
-  });
-}
+// function getNasasStuff(){
+//     request('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', { json: true }, (err, res, body) => {
+//     if (err) { return console.log(err); }
+//     console.log(body.url);
+//     console.log(body.explanation);
+//   });
+// }
 
 function play(connection, message){
     var server = servers[message.guild.id];
@@ -124,5 +131,44 @@ function play(connection, message){
         else connection.disconnect();
     })
 }
+function getSurvivEst(user,message){
+    return http.get('http://surviv.io/api/user_stats?slug=' + user + '&interval=all', (res) => {
+        console.log('http://surviv.io/api/user_stats?slug=' + user + '&interval=all');
+        const { statusCode } = res;
+        const contentType = res.headers['content-type'];
+
+        let error;
+        if (statusCode !== 200) {
+            error = new Error('Request Failed.\n' +
+                                `Status Code: ${statusCode}`);
+        } else if (!/^application\/json/.test(contentType)) {
+            error = new Error('Invalid content-type.\n' +
+                            `Expected application/json but received ${contentType}`);
+        }
+        if (error) {
+            console.error(error.message);
+            // consume response data to free up memory
+            res.resume();
+            return;
+        }
+        res.setEncoding('utf8');
+        let rawData = '';
+        res.on('data', (chunk) => { rawData += chunk; });
+        res.on('end', () => {
+            try {
+            const parsedData = JSON.parse(rawData);
+            if (parsedData != null){
+                    message.channel.send(parsedData.username+ " wins: " + parsedData.wins 
+                    + " kills: "+ parsedData.kills + " games: " + parsedData.games + " kpg: " + parsedData.kpg);   
+                }  
+            // console.log(parsedData);
+            } catch (e) {
+            console.error(e.message);
+            }
+        });
+    }).on('error', (e) => {
+    console.error(`Got error: ${e.message}`);
+    });
+};
 
 bot.login(TOKEN);
