@@ -12,6 +12,7 @@ bot.registry.registerDefaults();
 bot.registry.registerCommandsIn(__dirname + "/commands");
 
 var servers = {};
+var currentSurviv = "";
 
 bot.on('message',(message)=>{
     if(message.author.equals(bot.user)) return;
@@ -19,8 +20,36 @@ bot.on('message',(message)=>{
     if(!message.content.startsWith(PREFIX)) return;
 
     var args = message.content.substring(PREFIX.length).split(" ");
+    
+    var survivURL = "http://surviv.io/#";
+    var survivCode = args[0].indexOf(survivURL) !== -1 ? args[0].substring(survivURL.length) : false;
+    
+    if (survivCode){
+        args = [];
+        args.push("surviv");
+        args.push(survivCode);
+    }
 
     switch(args[0].toLowerCase()){
+        case "surviv":
+            if(!args[1]){
+                if(currentSurviv != ""){
+                    message.channel.send(survivURL+currentSurviv);
+                    return;
+                }
+                message.channel.send("No game in progress")
+                return;
+            }else{
+                if (args[1].length <= 6){
+                    currentSurviv = args[1];
+                    message.channel.send(args[1] + " Saved");
+                    return;
+                }else{
+                    message.channel.send("Codigo sospechoso");
+                    return;
+                }
+            }
+        break;
         case "bye":
         message.channel.send("live long and prosper");
         break;
@@ -73,8 +102,8 @@ function getForecast(){
 https.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', (resp) => {
   let data = '';
 
+});
 }
-};
 
 function getNasasStuff(){
     request('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY', { json: true }, (err, res, body) => {
