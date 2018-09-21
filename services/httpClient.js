@@ -1,6 +1,8 @@
 const Q = require("q");
 const http = require('http');
 
+var exports = module.exports = {};
+
 exports.get = function (opts) {
     var deferred = Q.defer();
     http.get(opts, (res) => {
@@ -43,4 +45,3 @@ exports.get = function (opts) {
     return deferred.promise;
 };
 
-var exports = module.exports = {};
