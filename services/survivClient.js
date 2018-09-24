@@ -8,20 +8,19 @@ survivClient.client = new WebSocketClient();
 survivClient.survivURL = "http://surviv.io/";
 survivClient.createJson = {"type":"create","data":{"roomData":{"roomUrl":"","region":"na","teamMode":4,"autoFill":false,"findingGame":false,"lastError":""},"playerData":{"name":"Rakuraku"}}};
 
-
 survivClient.client.on('connect', function(connection) {
-    survivClient.CuerrentConnection = connection;
+    survivClient.CurrentConnection = connection;
     survivClient.sendData(survivClient.createJson);
     console.log('WebSocket Client Connected');
-    survivClient.CuerrentConnection.on('error', function(error) {
+    survivClient.CurrentConnection.on('error', function(error) {
         console.log("Connection Error: " + error.toString());
     });
-    survivClient.CuerrentConnection.on('close', function() {
+    survivClient.CurrentConnection.on('close', function() {
         survivClient.currentSurviv = undefined;
         console.log('echo-protocol Connection Closed');
-        //survivClient.client.connect('ws://surviv.io/team', 'echo-protocol');
     });
-    survivClient.CuerrentConnection.on('message', function(message) {
+    survivClient.CurrentConnection.on('message', function(message) {
+        
         if (message){
             message = JSON.parse(message.utf8Data);           
             console.log("Received: '" + JSON.stringify(message)  +  "'");
@@ -33,12 +32,9 @@ survivClient.client.on('connect', function(connection) {
                     console.log("reach: " + survivClient.survivURL + survivClient.currentSurviv);
                     myMessage.channel.send(survivClient.survivURL + survivClient.currentSurviv);
                 }else{
-                    if(message.data.players.length > 1){
-                        // survivClient.client = {};
-                        // var kickOne = {"type": "kick", "data": {"playerId": 1}};
-                        // survivClient.client.disconnect(true);
-                        // survivClient.sendData(kickOne);    
-                        //survivClient.client.disconnect(true); //no funca                   
+                    if(survivClient.mustKickLeader){
+                        survivClient.CurrentConnection.close();
+                        survivClient.mustKickLeader = false;
                     }
                 }
                 break;
@@ -52,10 +48,10 @@ survivClient.client.on('connectFailed', function(error) {
 });
 
 survivClient.sendData = function (data) {
-    if (survivClient.CuerrentConnection) {
+    if (survivClient.CurrentConnection) {
         let json = JSON.stringify(data);
         console.log("Sending  data: " + json)
-        survivClient.CuerrentConnection.send(json);
+        survivClient.CurrentConnection.send(json);
     }
 }
 survivClient.getSurvivEst = function (user) {
@@ -93,6 +89,7 @@ survivClient.getSurvivRank = function (users) {
 };
 
 survivClient.connect = function(){
+    survivClient.mustKickLeader = true;
     survivClient.client.connect('ws://surviv.io/team', 'echo-protocol');
 }
 
