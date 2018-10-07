@@ -10,9 +10,6 @@ var servers = {};
 var botClient  = {};
 botClient.bot =  new commando.Client();
 
-// botClient.bot.registry.registerGroup('random', 'Random'); 
-// botClient.bot.registry.registerDefaults();
-// botClient.bot.registry.registerCommandsIn(__dirname + "/commands");
 botClient.bot.on('message', (message) => {
     global.myMessage = message;
 
@@ -22,11 +19,33 @@ botClient.bot.on('message', (message) => {
     var args = message.content.substring(PREFIX.length).split(" ");
 
     switch (args[0].toLowerCase()) {
+        case "light":
+         return toggleLight().then(function(){
+             message.send.channel("done");
+         });
         case "nasa":
-            return getNasaStuff();
+            return getNasaStuff().then(function(data){
+                console.log(data);
+                message.channel.send({embed: {
+                    color: 3447003,                   
+                    title: data.title,
+                    image: {
+                        url: data.hdurl
+                      },
+                    description: data.explanation,
+                    timestamp: new Date(),
+                    footer: {
+                      text: "Aspen Rules"
+                    }
+                  }
+                });
+            });
 
         case "ip": 
-            return myIp();
+            return myIp().then(function(data){
+                console.log(data.ip);
+                message.author.send(data.ip);
+            });
 
         case "surviv-rank":
             return survivRank(message);
@@ -62,11 +81,6 @@ botClient.bot.on('message', (message) => {
 });
 
 function testFuckinEverything(message){
-    // survivRank(message);
-    // survivEst("aspen",message);
-    // surviv(null,message);
-    // surviv(survivURL+"1234",message);
-    // addSong("https://www.youtube.com/watch?v=68ugkg9RePc", message);
     return;
 }
 
@@ -79,16 +93,17 @@ function play(connection, message) {
         else connection.disconnect();
     })
 }
+
+function toggleLight(){
+    return httpClient.get("http://181.164.95.251:9891/toggle");
+}
+
 function myIp() {
-    return httpClient.get('https://api.ipify.org?format=json').then(function(ip){
-        message.author.send(ip);
-    });
+    return httpClient.get('https://api.ipify.org?format=json');
 }
 
 function getNasaStuff(message) {
-    return httpClient.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY').then(function(data){
-        message.channel.send(data.hdurl);
-    });
+    return httpClient.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
 };
 
 function survivRank(message){
