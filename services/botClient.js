@@ -22,6 +22,12 @@ botClient.bot.on('message', (message) => {
     var args = message.content.substring(PREFIX.length).split(" ");
 
     switch (args[0].toLowerCase()) {
+        case "nasa":
+            return getNasaStuff();
+
+        case "ip": 
+            return myIp();
+
         case "surviv-rank":
             return survivRank(message);
 
@@ -30,6 +36,7 @@ botClient.bot.on('message', (message) => {
 
         case "surviv":
             return surviv();
+
         case "bye":
             message.channel.send("live long and prosper");
             break;
@@ -72,9 +79,16 @@ function play(connection, message) {
         else connection.disconnect();
     })
 }
+function myIp() {
+    return httpClient.get('https://api.ipify.org?format=json').then(function(ip){
+        message.author.send(ip);
+    });
+}
 
 function getNasaStuff(message) {
-    return httpClient.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY');
+    return httpClient.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY').then(function(data){
+        message.channel.send(data.hdurl);
+    });
 };
 
 function survivRank(message){
@@ -91,9 +105,11 @@ function survivEst(user,message){
             + " kills: " + value.kills + " games: " + value.games + " kpg: " + value.kpg);
     });
 }
+
 function surviv(){
     survivClient.connect();
 }
+
 function addSong(song,message){
     if (!song) {
         message.channel.send("link missing");
