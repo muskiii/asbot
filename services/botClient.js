@@ -46,6 +46,10 @@ botClient.bot.on('message', (message) => {
                 console.log(data.ip);
                 message.author.send(data.ip);
             });
+        case "door": 
+        return openDoor().then(function(){
+            message.channel.send("Abrete Sésamo");
+        });
 
         case "surviv-rank":
             return survivRank(message);
@@ -100,6 +104,9 @@ function toggleLight(){
 
 function myIp() {
     return httpClient.get('https://api.ipify.org?format=json');
+}
+function openDoor() {
+    return httpClient.get('http://192.168.86.37:9891/bell');
 }
 
 function getNasaStuff(message) {
