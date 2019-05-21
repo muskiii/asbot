@@ -1,6 +1,6 @@
 'use strict';
 const commando = require('discord.js-commando');
-const httpClient = require('./httpClient');
+const axios = require('axios');
 const YTDL = require('ytdl-core');
 const survivClient = require('./survivClient').survivClient;
 
@@ -42,9 +42,10 @@ botClient.bot.on('message', (message) => {
             });
 
         case "ip": 
-            return myIp().then(function(data){
-                console.log(data.ip);
-                message.author.send(data.ip);
+            return myIp().then(function(result){
+
+                console.log(result.data.ip);
+                message.author.send(result.data.ip);
             });
         case "door": 
         return openDoor().then(function(){
@@ -99,14 +100,15 @@ function play(connection, message) {
 }
 
 function toggleLight(){
-    return httpClient.get("http://181.164.95.251:9891/toggle");
+    return httpClient.get("http://181.164.95.251:9891/toggle",);
 }
 
 function myIp() {
-    return httpClient.get('https://api.ipify.org?format=json');
+    return axios.get('https://api.ipify.org?format=json',{ headers: {'x-forwarded-for': '1.1.1.1'}});
 }
 function openDoor() {
-    return httpClient.get('http://192.168.86.37:9891/bell');
+    return axios
+    .get('http://192.168.86.37:9891/bell',{ headers: {'x-forwarded-for': '1.1.1.1'}});
 }
 
 function getNasaStuff(message) {

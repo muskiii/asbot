@@ -14,8 +14,9 @@ app.get('/', function (req, res) {
   res.send('AsBot Madafaka');
 });
 
-app.listen(process.env.PORT || 5000, function () {
-  console.log('App is up and running over port :' + process.env.PORT || 5000);
+let port =  process.env.PORT || 5000;
+app.listen( 5000, function () {
+  console.log('App is up and running over port :' + port);
 });
 
 
