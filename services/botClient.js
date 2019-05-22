@@ -7,82 +7,81 @@ const survivClient = require("./survivClient").survivClient;
 const PREFIX = ">";
 
 var servers = {};
-var botClient = {};
-botClient.bot = new commando.Client();
+var botClient  = {};
+botClient.bot =  new commando.Client();
 
-botClient.bot.on("message", message => {
-  global.myMessage = message;
+botClient.bot.on('message', (message) => {
+    global.myMessage = message;
 
-  if (message.author.equals(botClient.bot.user)) return;
-  if (!message.content.startsWith(PREFIX)) return;
+    if (message.author.equals(botClient.bot.user)) return;
+    if (!message.content.startsWith(PREFIX)) return;
 
-  var args = message.content.substring(PREFIX.length).split(" ");
+    var args = message.content.substring(PREFIX.length).split(" ");
 
-  switch (args[0].toLowerCase()) {
-    case "light":
-      return toggleLight().then(function() {
-        message.send.channel("done");
-      });
-    case "nasa":
-      return getNasaStuff().then(function(data) {
-        console.log(data);
-        message.channel.send({
-          embed: {
-            color: 3447003,
-            title: data.title,
-            image: {
-              url: data.hdurl
-            },
-            description: data.explanation,
-            timestamp: new Date(),
-            footer: {
-              text: "Aspen Rules"
-            }
-          }
+    switch (args[0].toLowerCase()) {
+        case "light":
+         return toggleLight().then(function(){
+             message.send.channel("done");
+         });
+        case "nasa":
+            return getNasaStuff().then(function(data){
+                console.log(data);
+                message.channel.send({embed: {
+                    color: 3447003,                   
+                    title: data.title,
+                    image: {
+                        url: data.hdurl
+                      },
+                    description: data.explanation,
+                    timestamp: new Date(),
+                    footer: {
+                      text: "Aspen Rules"
+                    }
+                  }
+                });
+            });
+
+        case "ip": 
+            return myIp().then(function(data){
+                console.log(data.ip);
+                message.author.send(data.ip);
+            });
+        case "door": 
+        return openDoor().then(function(){
+            message.channel.send("Abrete Sésamo");
         });
-      });
 
-    case "ip":
-      return myIp().then(function(result) {
-        console.log(result.data.ip);
-        message.author.send(result.data.ip);
-      });
-    case "door":
-      return openDoor().then(function() {
-        message.channel.send("Abrete Sésamo");
-      });
+        case "surviv-rank":
+            return survivRank(message);
 
-    case "surviv-rank":
-      return survivRank(message);
+        case "surviv-est":
+            return survivEst(args[1],message);
 
-    case "surviv-est":
-      return survivEst(args[1], message);
+        case "surviv":
+            return surviv();
 
-    case "surviv":
-      return surviv();
+        case "bye":
+            message.channel.send("live long and prosper");
+            break;
 
-    case "bye":
-      message.channel.send("live long and prosper");
-      break;
+        case "play":
+            return addSong(args[1], message);
 
-    case "play":
-      return addSong(args[1], message);
+        case "skip":
+            var server = servers[message.guild.id];
+            if (server.dispatcher) server.dispatcher.end();
+            break;
+        case "stop":
+            var server = servers[message.guild.id];
+            if (message.guild.voiceConnection) message.guild.voiceConnection.disconnect();
+            break;
+          
+        case "test":
+            return testFuckinEverything(message);
+        default:
+            message.channel.send("escribe bien imbecil");
+    }
 
-    case "skip":
-      var server = servers[message.guild.id];
-      if (server.dispatcher) server.dispatcher.end();
-      break;
-    case "stop":
-      var server = servers[message.guild.id];
-      if (message.guild.voiceConnection)
-        message.guild.voiceConnection.disconnect();
-      break;
-
-    case "test":
-      return testFuckinEverything(message);
-    default:
-      message.channel.send("escribe bien imbecil");
-  }
 });
 
 function testFuckinEverything(message) {
@@ -115,6 +114,9 @@ return axios.get("https://api.ipify.org?format=json");
 function openDoor() {
 //   return axios.get("http://192.168.86.37:9891/bell");
     return new Promise();
+}
+function openDoor() {
+    return httpClient.get('http://192.168.86.37:9891/bell');
 }
 
 function getNasaStuff(message) {
