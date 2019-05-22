@@ -1,0 +1,34 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Door 'o' Matic 3000 ©</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.css">
+    <link href="/css/signin.css" rel="stylesheet">
+  </head>
+
+  <body class="text-center">
+        <form class="form-signin">
+        <img class="mb-4" src="https://st.depositphotos.com/1302980/4591/v/950/depositphotos_45910357-stock-illustration-cartoon-wooden-and-stone-hobbit.jpg" alt="" width="140" height="140">
+        <h1 class="h3 mb-3 font-weight-normal">Door 'o' Matic 3000 ©</h1>
+        <!-- <label for="inputEmail" class="sr-only">Abrir</label> -->
+        <button  onclick="loadDoc()" class="btn btn-lg btn-primary btn-block" type="submit">Abrete Sésamo</button>
+        <p class="mt-5 mb-3 text-muted">&copy; Aspen & Diegote enterprises incorporated </p>
+        </form>
+  </body>
+  <script>
+  function loadDoc() {
+      
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        
+    }
+  };
+  xhttp.open("GET", "http://192.168.86.37:9891/bell", true);
+  xhttp.send();
+}
+  </script>
+</html>
