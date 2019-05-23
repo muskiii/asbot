@@ -13,7 +13,7 @@ app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen( 5000, function () {
+app.listen( port, function () {
   console.log('App is up and running over port :' + port);
 });
 
